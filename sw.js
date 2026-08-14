@@ -1,5 +1,5 @@
 /* Service worker — deixa o app abrir offline */
-const CACHE = 'rotina-v1';
+const CACHE = 'rotina-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -33,7 +33,7 @@ self.addEventListener('fetch', e => {
   // network-first para o HTML (pega atualizações), cache-first para o resto
   if (req.mode === 'navigate' || url.pathname.endsWith('.html')) {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
         .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
     );
