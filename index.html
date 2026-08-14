@@ -685,6 +685,55 @@ function renderHeaderRight(){
   };
 }
 
+/* ---------- Lembretes (Web Push) ---------- */
+const VAPID_PUBLIC = 'BPSOhgP8vBg8-TmRblXdjNENJrMUhPvoUxXv-6cxTrWKpNZW7CWI-mfJYsjQo4A0zY1DuUguZJZpcRQ6-zLyoxI';
+function urlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+let pushStatus = 'checking'; // unsupported | denied | off | on | checking
+async function refreshPushStatus(){
+  try{
+    if(!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)){ pushStatus='unsupported'; }
+    else if(Notification.permission==='denied'){ pushStatus='denied'; }
+    else{
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      pushStatus = sub ? 'on' : 'off';
+    }
+  }catch(e){ pushStatus='unsupported'; }
+  if(ui.view==='config') render();
+}
+const pushMgr = {
+  async ativar(){
+    if(!sync.logged()) throw new Error('Conecte a sincronização primeiro (Supabase) — os lembretes dependem dela.');
+    const perm = await Notification.requestPermission();
+    if(perm!=='granted') throw new Error('Permissão de notificação negada');
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if(!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC) });
+    const j = sub.toJSON();
+    await sync.api('/rest/v1/push_subscriptions', {
+      method:'POST',
+      headers:{ 'Prefer':'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ user_id: store.cfg.uid, endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth }])
+    });
+  },
+  async desativar(){
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if(sub){
+      const endpoint = sub.endpoint;
+      await sub.unsubscribe();
+      if(sync.configured()) await sync.api('/rest/v1/push_subscriptions?endpoint=eq.'+encodeURIComponent(endpoint), { method:'DELETE' }).catch(()=>{});
+    }
+  }
+};
+
 const NAV = [
   { id:'dia',   lbl:'Dia',    icon:'<path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5z"/><path d="M8 2v4M16 2v4M3 10h18"/>' },
   { id:'passo', lbl:'Passos',  icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>' },
@@ -1522,6 +1571,23 @@ function viewConfig(){
   }
   h+='</div>';
 
+  /* Lembretes */
+  h+='<div class="card"><h2>Lembretes</h2>'+
+    '<div class="sub">Aviso no celular às 07h e às 20h (horário de Brasília), mesmo com o app fechado.</div>'+
+    (pushStatus==='unsupported'?
+      '<div class="smallnote">Seu navegador não suporta notificações push. No iPhone, o app precisa estar instalado na tela de início (Safari → Compartilhar → Adicionar à Tela de Início) e no iOS 16.4 ou mais novo.</div>'
+    : pushStatus==='denied'?
+      '<div class="smallnote" style="color:var(--red)">Notificações bloqueadas. Ative em Ajustes do iPhone → Notificações → Minha Rotina.</div>'
+    : pushStatus==='on'?
+      '<div class="row"><span class="badge g" style="display:flex;align-items:center;padding:0 12px">Ativado</span>'+
+      '<button class="btn sm" id="btnPushOff">Desativar</button></div>'
+    : pushStatus==='checking'?
+      '<div class="smallnote">Verificando…</div>'
+    :
+      '<button class="btn primary sm" id="btnPushOn" style="width:100%">Ativar lembretes</button>'
+    )+
+  '</div>';
+
   /* Dados */
   h+='<div class="card"><h2>Meus dados</h2>'+
     '<div class="stats" style="margin-bottom:12px">'+
@@ -1580,6 +1646,18 @@ function bindConfig(){
   });
   on('copySql', ()=>{ navigator.clipboard.writeText(SQL_SETUP).then(()=>toast('SQL copiado')).catch(()=>toast('Copie manualmente')); });
   on('cfgReset', ()=>{ store.cfg.sbUrl=''; store.cfg.sbKey=''; store.saveCfg(); render(); });
+
+  on('btnPushOn', async ()=>{
+    toast('Ativando…');
+    try{ await pushMgr.ativar(); toast('Lembretes ativados!'); }
+    catch(e){ toast(e.message||'Não deu pra ativar'); }
+    refreshPushStatus();
+  });
+  on('btnPushOff', async ()=>{
+    await pushMgr.desativar();
+    toast('Lembretes desativados');
+    refreshPushStatus();
+  });
 
   document.querySelectorAll('[data-stock]').forEach(el=>{
     el.oninput = ()=>{
@@ -1698,6 +1776,7 @@ function init(){
   ui.view = store.cfg.view || 'dia';
   if(!NAV.some(n=>n.id===ui.view)) ui.view='dia';
   ui.date = todayISO();
+  refreshPushStatus();
 
   $('#prevDay').onclick = ()=>{ ui.date=addDays(ui.date,-1); stopTick(); focusState.tipo=null; render(); };
   $('#nextDay').onclick = ()=>{ if(ui.date>=todayISO()) return; ui.date=addDays(ui.date,1); stopTick(); focusState.tipo=null; render(); };
