@@ -1677,12 +1677,32 @@ function init(){
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState==='visible'){
       if(sync.logged()) sync.run(true);
+      if(swReg) swReg.update().catch(()=>{});
     }
   });
 
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  }
+  initSW();
+}
+
+/* ---------- Atualização automática do app (service worker) ----------
+   O sw.js já ativa a versão nova sozinho (skipWaiting/clients.claim).
+   Aqui só garantimos que: (1) o app recarrega assim que a versão nova
+   assumir, e (2) a cada vez que o app volta ao primeiro plano, ele
+   checa o servidor por uma versão nova, em vez de esperar o navegador
+   decidir checar por conta própria. */
+let swReg = null;
+function initSW(){
+  if(!('serviceWorker' in navigator)) return;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    if(reloading) return;
+    reloading = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache:'none' }).then(reg=>{
+    swReg = reg;
+    reg.update().catch(()=>{});
+  }).catch(()=>{});
 }
 init();
 </script>
