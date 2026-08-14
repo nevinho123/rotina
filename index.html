@@ -366,55 +366,55 @@ details.acc .accbody{padding:0 14px 14px}
 
 /* ---------- 1. DEFINIÇÃO DAS ROTINAS (vindas do PDF) ---------- */
 const ROTINA_MANHA = [
-  { id:'m01', t:'Trocar o dia do calendário', min:2 },
-  { id:'m02', t:"Abrir a janela", min:2 },
-  { id:'m03', t:"Beber garrafinha d'água (600ml)", min:3 },
-  { id:'m04', t:'Dobrar cama / guardar cobertas', min:5 },
-  { id:'m05', t:'Lavar o rosto', min:4 },
-  { id:'m06', t:'Café da manhã', min:15 },
-  { id:'m07', t:'Lavar a louça', min:5 },
-  { id:'m08', t:'Ácido valproico', min:1 },
-  { id:'m08b', t:'Atentah', min:1 },
-  { id:'m09', t:'Creatina', min:1 },
-  { id:'m10', t:'Escovar os dentes', min:6 },
-  { id:'m11', t:'Protetor solar + minoxidil', min:3 },
-  { id:'m12', t:'Tirar pijama / colocar roupa', min:4 },
-  { id:'m13', t:'Leitura', min:15 }
+  { id:'m01', t:'trocar o dia do calendário', min:2 },
+  { id:'m02', t:"abrir a janela", min:2 },
+  { id:'m03', t:"beber garrafinha d'água (600ml)", min:3 },
+  { id:'m04', t:'dobrar cama / guardar cobertas', min:5 },
+  { id:'m05', t:'lavar o rosto', min:4 },
+  { id:'m06', t:'café da manhã', min:15 },
+  { id:'m07', t:'lavar a louça', min:5 },
+  { id:'m08', t:'ácido valproico', min:1 },
+  { id:'m08b', t:'atentah', min:1 },
+  { id:'m09', t:'creatina', min:1 },
+  { id:'m10', t:'escovar os dentes', min:6 },
+  { id:'m11', t:'protetor solar + minoxidil', min:3 },
+  { id:'m12', t:'tirar pijama / colocar roupa', min:4 },
+  { id:'m13', t:'leitura', min:15 }
 ];
 const ROTINA_NOITE = [
-  { id:'n01', t:'Jantar', min:30 },
-  { id:'n01b', t:'Ácido valproico', min:1 },
-  { id:'n02', t:'Varrer o quarto', min:15 },
-  { id:'n03', t:'Tomar banho', min:20 },
-  { id:'n04', t:'Colocar pijama', min:4 },
-  { id:'n05', t:'Passar fio dental', min:5 },
-  { id:'n06', t:'Escovar os dentes', min:5 },
-  { id:'n07', t:'Sérum + cicaplast', min:4 },
-  { id:'n08', t:'Tirar coisas da mesa', min:6 },
-  { id:'n09', t:'Jogar algo fora (desapego diário)', min:4 },
-  { id:'n10', t:'Forrar a cama', min:5 },
-  { id:'n11', t:'Kegel Workout', min:5 },
-  { id:'n12', t:'Celular p/ carregar longe + Apple Watch', min:2 },
-  { id:'n13', t:'Fechar grelha / apagar luzes', min:2 },
-  { id:'n14', t:'Meditação', min:10 },
-  { id:'n15', t:'Ler um livro', min:15 }
+  { id:'n01', t:'jantar', min:30 },
+  { id:'n01b', t:'ácido valproico', min:1 },
+  { id:'n02', t:'varrer o quarto', min:15 },
+  { id:'n03', t:'tomar banho', min:20 },
+  { id:'n04', t:'colocar pijama', min:4 },
+  { id:'n05', t:'passar fio dental', min:5 },
+  { id:'n06', t:'escovar os dentes', min:5 },
+  { id:'n07', t:'sérum + cicaplast', min:4 },
+  { id:'n08', t:'tirar coisas da mesa', min:6 },
+  { id:'n09', t:'jogar algo fora (desapego diário)', min:4 },
+  { id:'n10', t:'forrar a cama', min:5 },
+  { id:'n11', t:'kegel workout', min:5 },
+  { id:'n12', t:'celular p/ carregar longe + apple watch', min:2 },
+  { id:'n13', t:'fechar grelha / apagar luzes', min:2 },
+  { id:'n14', t:'meditação', min:10 },
+  { id:'n15', t:'ler um livro', min:15 }
 ];
 const REFEICOES = [
-  { id:'cafe', t:'Café manhã' }, { id:'lancheM', t:'Lanche manhã' },
-  { id:'almoco', t:'Almoço' }, { id:'lancheT', t:'Lanche tarde' },
-  { id:'jantar', t:'Jantar' }
+  { id:'cafe', t:'café manhã' }, { id:'lancheM', t:'lanche manhã' },
+  { id:'almoco', t:'almoço' }, { id:'lancheT', t:'lanche tarde' },
+  { id:'jantar', t:'jantar' }
 ];
 const AGUA_COPOS = 10, AGUA_ML = 200;
 const totMin = a => a.reduce((s,x)=>s+x.min,0);
 
 const MEDS_INFO = {
-  atentah:   { nome:'Atentah',         porDia:1, cfgKey:'estoqueAtentah' },
-  valproico: { nome:'Ácido valproico', porDia:2, cfgKey:'estoqueValproico' }
+  atentah:   { nome:'atentah',         porDia:1, cfgKey:'estoqueAtentah' },
+  valproico: { nome:'ácido valproico', porDia:2, cfgKey:'estoqueValproico' }
 };
 const MEDS = [
-  { id:'m08b', tipo:'manha', t:'Atentah',         badge:'Manhã', stock:'atentah' },
-  { id:'m08',  tipo:'manha', t:'Ácido valproico', badge:'Manhã', stock:'valproico' },
-  { id:'n01b', tipo:'noite', t:'Ácido valproico', badge:'Noite', stock:'valproico' }
+  { id:'m08b', tipo:'manha', t:'atentah',         badge:'manhã', stock:'atentah' },
+  { id:'m08',  tipo:'manha', t:'ácido valproico', badge:'manhã', stock:'valproico' },
+  { id:'n01b', tipo:'noite', t:'ácido valproico', badge:'noite', stock:'valproico' }
 ];
 const MEDS_BY_KEY = {}; MEDS.forEach(m=>{ MEDS_BY_KEY[m.tipo+'.'+m.id]=m; });
 
@@ -434,6 +434,13 @@ function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 function fmtMin(m){ if(m<60) return m+'min'; const h=Math.floor(m/60),r=m%60; return r? h+'h'+String(r).padStart(2,'0') : h+'h'; }
 function avg(arr){ const v=arr.filter(x=>typeof x==='number'&&!isNaN(x)); return v.length? v.reduce((a,b)=>a+b,0)/v.length : null; }
 function r1(n){ return n==null? '—' : (Math.round(n*10)/10).toString().replace('.',','); }
+function calcSono(dormir, acordar){
+  if(!dormir || !acordar) return null;
+  const [dh,dm] = dormir.split(':').map(Number), [ah,am] = acordar.split(':').map(Number);
+  let min = (ah*60+am) - (dh*60+dm);
+  if(min<=0) min += 24*60; // dormiu antes da meia-noite, acordou depois
+  return Math.round((min/60)*10)/10;
+}
 
 const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 
@@ -543,7 +550,13 @@ const sync = {
   timer:null,
   configured(){ return !!(store.cfg.sbUrl && store.cfg.sbKey); },
   logged(){ return this.configured() && !!store.cfg.token; },
-  setStatus(s,m){ this.status=s; this.msg=m||''; renderHeaderRight(); if(ui.view==='config') render(); },
+  setStatus(s,m){
+    this.status=s; this.msg=m||''; renderHeaderRight();
+    if(ui.view==='config'){
+      const ae=document.activeElement, editando = ae && (ae.tagName==='INPUT'||ae.tagName==='TEXTAREA');
+      if(!editando) render();
+    }
+  },
 
   async api(path, opts, retry){
     opts = opts||{};
@@ -788,8 +801,8 @@ function viewDia(){
       '<input type="text" data-f="sentimento" value="'+esc(l.sentimento)+'" placeholder="Em poucas palavras"></div>'+
     '<div class="field"><label class="lbl">Algo pequeno que foi bom ontem</label>'+
       '<input type="text" data-f="algoBom" value="'+esc(l.algoBom)+'" placeholder="Qualquer coisinha conta"></div>'+
-    '<div class="row"><div class="field"><label class="lbl">Acordei</label><input type="time" data-f="acordar" value="'+esc(l.acordar)+'"></div>'+
-    '<div class="field"><label class="lbl">Dormi</label><input type="time" data-f="dormir" value="'+esc(l.dormir)+'"></div></div>'+
+    '<div class="row"><div class="field"><label class="lbl">Dormi (ontem à noite)</label><input type="time" data-f="dormir" value="'+esc(l.dormir)+'"></div>'+
+    '<div class="field"><label class="lbl">Acordei (hoje)</label><input type="time" data-f="acordar" value="'+esc(l.acordar)+'"></div></div>'+
   '</div>';
 
   h+='<div class="grid2">';
@@ -866,8 +879,6 @@ function viewDia(){
   h+='<div class="card"><h2>Fechamento do dia</h2>'+
     '<div class="field"><label class="lbl">O que não fiz e por quê</label>'+
       '<textarea data-f="naoFiz" placeholder="Sem culpa — só entender o padrão">'+esc(l.naoFiz)+'</textarea></div>'+
-    '<div class="field"><label class="lbl">Sono (horas)</label>'+
-      '<input type="number" step="0.5" min="0" max="16" data-f="sono" value="'+(l.sono==null?'':l.sono)+'" placeholder="7,5"></div>'+
     '<div class="field"><label class="lbl">Humor</label>'+rateHTML('humor',l.humor,'mood')+
       '<div class="ratelegend"><span>péssimo</span><span>ótimo</span></div></div>'+
     '<div class="field"><label class="lbl">Energia</label>'+rateHTML('energia',l.energia,'energy')+
@@ -921,7 +932,10 @@ function bindDia(){
   document.querySelectorAll('[data-f]').forEach(el=>{
     el.oninput = ()=>{
       const f=el.dataset.f;
-      upd(l=>{ l[f] = (f==='sono') ? (el.value===''? null : parseFloat(el.value.replace(',','.'))) : el.value; });
+      upd(l=>{
+        l[f] = el.value;
+        if(f==='dormir' || f==='acordar') l.sono = calcSono(l.dormir, l.acordar);
+      });
     };
   });
   document.querySelectorAll('[data-rate]').forEach(g=>{
