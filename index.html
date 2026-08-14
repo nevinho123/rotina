@@ -660,7 +660,8 @@ const sync = {
       store.cfg.lastSync=Date.now(); store.saveCfg();
       this.setStatus('ok');
       if(!silencioso) toast('Sincronizado — '+push.length+' enviados, '+baixados+' recebidos');
-      if(baixados) render();
+      const ae=document.activeElement, editando = ae && (ae.tagName==='INPUT'||ae.tagName==='TEXTAREA');
+      if(baixados && !editando) render();
     }catch(e){
       this.setStatus('err', e.message||'Falha');
       if(!silencioso) toast('Erro ao sincronizar: '+(e.message||''));
