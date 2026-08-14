@@ -764,6 +764,16 @@ function viewDia(){
           (rem<=0?'acabou':'~'+dias+' dias')+'</span></div></div>';
       }).join('')+
     '</div>'+
+    '<div class="hr"></div>'+
+    '<label class="lbl">Comprei mais</label>'+
+    '<div class="row" style="margin-top:6px">'+
+      Object.keys(MEDS_INFO).map(k=>{
+        const info=MEDS_INFO[k];
+        return '<input type="number" min="0" inputmode="numeric" placeholder="'+esc(info.nome)+'" id="add_'+k+'" style="text-align:center">';
+      }).join('')+
+    '</div>'+
+    '<button class="btn sm primary" id="btnAddEstoque" style="width:100%;margin-top:8px">+ Adicionar ao estoque</button>'+
+    '<div class="smallnote" style="margin-top:8px">Pra corrigir o número exato (sem somar), vá em Ajustes → Estoque de remédios.</div>'+
   '</div>';
 
   /* Abertura do dia */
@@ -867,6 +877,18 @@ function viewDia(){
 
 function bindDia(){
   const upd = fn => { const l=store.get(ui.date); fn(l); store.put(l); };
+
+  const btnAddEstoque = $('#btnAddEstoque');
+  if(btnAddEstoque) btnAddEstoque.onclick = ()=>{
+    let somou=false, msgs=[];
+    Object.keys(MEDS_INFO).forEach(k=>{
+      const info=MEDS_INFO[k], el=$('#add_'+k);
+      const v = el ? parseInt(el.value||'0',10) : 0;
+      if(v>0){ store.cfg[info.cfgKey]=(store.cfg[info.cfgKey]||0)+v; somou=true; msgs.push('+'+v+' '+info.nome); }
+    });
+    if(somou){ store.saveCfg(); toast(msgs.join(' · ')); render(); }
+    else toast('Digite quantas cápsulas você comprou');
+  };
 
   document.querySelectorAll('[data-chk]').forEach(el=>{
     el.onclick = ()=>{
