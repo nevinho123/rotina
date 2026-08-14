@@ -369,7 +369,8 @@ const ROTINA_MANHA = [
   { id:'m05', t:'Lavar o rosto', min:4 },
   { id:'m06', t:'Café da manhã', min:15 },
   { id:'m07', t:'Lavar a louça', min:5 },
-  { id:'m08', t:'Ácido valproico + Atentah', min:1 },
+  { id:'m08', t:'Ácido valproico', min:1 },
+  { id:'m08b', t:'Atentah', min:1 },
   { id:'m09', t:'Creatina', min:1 },
   { id:'m10', t:'Escovar os dentes', min:6 },
   { id:'m11', t:'Protetor solar + minoxidil', min:3 },
@@ -378,6 +379,7 @@ const ROTINA_MANHA = [
 ];
 const ROTINA_NOITE = [
   { id:'n01', t:'Jantar', min:30 },
+  { id:'n01b', t:'Ácido valproico', min:1 },
   { id:'n02', t:'Varrer o quarto', min:15 },
   { id:'n03', t:'Tomar banho', min:20 },
   { id:'n04', t:'Colocar pijama', min:4 },
@@ -400,6 +402,17 @@ const REFEICOES = [
 ];
 const AGUA_COPOS = 10, AGUA_ML = 200;
 const totMin = a => a.reduce((s,x)=>s+x.min,0);
+
+const MEDS_INFO = {
+  atentah:   { nome:'Atentah',         porDia:1, cfgKey:'estoqueAtentah' },
+  valproico: { nome:'Ácido valproico', porDia:2, cfgKey:'estoqueValproico' }
+};
+const MEDS = [
+  { id:'m08b', tipo:'manha', t:'Atentah',         badge:'Manhã', stock:'atentah' },
+  { id:'m08',  tipo:'manha', t:'Ácido valproico', badge:'Manhã', stock:'valproico' },
+  { id:'n01b', tipo:'noite', t:'Ácido valproico', badge:'Noite', stock:'valproico' }
+];
+const MEDS_BY_KEY = {}; MEDS.forEach(m=>{ MEDS_BY_KEY[m.tipo+'.'+m.id]=m; });
 
 /* ---------- 2. UTILITÁRIOS ---------- */
 const $ = s => document.querySelector(s);
@@ -461,7 +474,7 @@ const LS_DATA='rotina.dados.v1', LS_CFG='rotina.cfg.v1', LS_DIRTY='rotina.dirty.
 
 const store = {
   days: {},
-  cfg: { view:'dia', theme:'auto', sbUrl:'', sbKey:'', email:'', token:'', refresh:'', uid:'', lastSync:0 },
+  cfg: { view:'dia', theme:'auto', sbUrl:'', sbKey:'', email:'', token:'', refresh:'', uid:'', lastSync:0, estoqueAtentah:52, estoqueValproico:127 },
   dirty: {},
   load(){
     try{ this.days = JSON.parse(localStorage.getItem(LS_DATA)||'{}'); }catch(e){ this.days={}; }
@@ -730,6 +743,29 @@ function viewDia(){
       '<div class="stat"><div class="v" style="font-size:17px">'+(l.sono? r1(l.sono)+'h':'—')+'</div><div class="l">Sono</div></div>'+
     '</div></div>';
 
+  /* Remédios */
+  h+='<div class="card"><h2>Remédios<span class="spacer"></span><span class="badge '+
+      (MEDS.every(m=>l[m.tipo][m.id])?'g':'')+'">'+MEDS.filter(m=>l[m.tipo][m.id]).length+'/'+MEDS.length+'</span></h2>'+
+    '<div class="sub">Atentah 1x ao dia (manhã) · Ácido valproico 2x ao dia (manhã e noite)</div>'+
+    MEDS.map(m=>{
+      const on = !!l[m.tipo][m.id];
+      return '<div class="checkrow '+(on?'on':'')+'" data-chk="'+m.tipo+'" data-id="'+m.id+'">'+
+        '<div class="box">'+CHECK_SVG+'</div>'+
+        '<div class="txt">'+esc(m.t)+'</div>'+
+        '<div class="min">'+m.badge+'</div></div>';
+    }).join('')+
+    '<div class="hr"></div>'+
+    '<div class="stats">'+
+      Object.keys(MEDS_INFO).map(k=>{
+        const info=MEDS_INFO[k], rem=store.cfg[info.cfgKey]??0, dias=Math.floor(rem/info.porDia);
+        const low = rem<=0 ? 'var(--red)' : dias<=7 ? 'var(--orange)' : 'var(--text)';
+        return '<div class="stat"><div class="v" style="color:'+low+'">'+rem+'</div>'+
+          '<div class="l">'+esc(info.nome)+'<br><span style="text-transform:none;letter-spacing:0;font-weight:600">'+
+          (rem<=0?'acabou':'~'+dias+' dias')+'</span></div></div>';
+      }).join('')+
+    '</div>'+
+  '</div>';
+
   /* Abertura do dia */
   h+='<div class="card"><h2>Abertura do dia</h2>'+
     '<div class="field"><label class="lbl">Missão do dia</label>'+
@@ -835,7 +871,14 @@ function bindDia(){
   document.querySelectorAll('[data-chk]').forEach(el=>{
     el.onclick = ()=>{
       const tipo=el.dataset.chk, id=el.dataset.id;
+      const med = MEDS_BY_KEY[tipo+'.'+id];
+      const vaiTomar = !store.get(ui.date)[tipo][id];
       upd(l=>{ if(l[tipo][id]) delete l[tipo][id]; else l[tipo][id]=true; });
+      if(med){
+        const info = MEDS_INFO[med.stock];
+        store.cfg[info.cfgKey] = Math.max(0, (store.cfg[info.cfgKey]||0) + (vaiTomar? -1 : 1));
+        store.saveCfg();
+      }
       render();
     };
   });
@@ -1448,6 +1491,16 @@ function viewConfig(){
     '<div class="smallnote" style="margin-top:10px">O backup é um arquivo JSON com tudo. Guarde de vez em quando.</div>'+
   '</div>';
 
+  /* Estoque de remédios */
+  h+='<div class="card"><h2>Estoque de remédios</h2>'+
+    '<div class="sub">Some 1 automaticamente quando você marca a dose no dia. Ajuste aqui depois de comprar mais.</div>'+
+    Object.keys(MEDS_INFO).map(k=>{
+      const info=MEDS_INFO[k];
+      return '<div class="field"><label class="lbl">'+esc(info.nome)+' (cápsulas restantes)</label>'+
+        '<input type="number" min="0" inputmode="numeric" data-stock="'+info.cfgKey+'" value="'+(c[info.cfgKey]??0)+'"></div>';
+    }).join('')+
+  '</div>';
+
   /* Aparência */
   h+='<div class="card"><h2>Aparência</h2><div class="chips">'+
     [['auto','Automático'],['light','Claro'],['dark','Escuro']].map(t=>
@@ -1482,6 +1535,14 @@ function bindConfig(){
   });
   on('copySql', ()=>{ navigator.clipboard.writeText(SQL_SETUP).then(()=>toast('SQL copiado')).catch(()=>toast('Copie manualmente')); });
   on('cfgReset', ()=>{ store.cfg.sbUrl=''; store.cfg.sbKey=''; store.saveCfg(); render(); });
+
+  document.querySelectorAll('[data-stock]').forEach(el=>{
+    el.oninput = ()=>{
+      const k=el.dataset.stock;
+      store.cfg[k] = Math.max(0, parseInt(el.value||'0',10)||0);
+      store.saveCfg();
+    };
+  });
 
   const entrar = async (criar)=>{
     const em=$('#cfgEmail').value.trim(), pw=$('#cfgPass').value;
