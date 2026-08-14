@@ -20,6 +20,7 @@
   --orange:#0891b2; --orange-soft:#e2f5fa;
   --purple:#0891b2; --purple-soft:#e2f5fa;
   --red:#d8324a;
+  --rank-good:#0d9668; --rank-mid:#c2740c;
   --done:#0891b2; --done-soft:#e2f5fa; --done-glow:rgba(8,145,178,0);
   --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.05);
   --glow:rgba(8,145,178,0);
@@ -37,6 +38,7 @@
     --orange:#2dd6ff; --orange-soft:rgba(45,214,255,.12);
     --purple:#2dd6ff; --purple-soft:rgba(45,214,255,.12);
     --red:#ff4d6a;
+    --rank-good:#33f2bd; --rank-mid:#ffb454;
     --done:#2dd6ff; --done-soft:rgba(45,214,255,.12); --done-glow:rgba(45,214,255,.55);
     --shadow:none;
     --glow:rgba(45,214,255,.35);
@@ -48,7 +50,8 @@ html[data-theme="light"]{
   --line:#dde3ea; --line2:#e9edf2;
   --green:#0891b2; --green-soft:#e2f5fa; --blue:#0891b2; --blue-soft:#e2f5fa;
   --orange:#0891b2; --orange-soft:#e2f5fa; --purple:#0891b2; --purple-soft:#e2f5fa;
-  --red:#d8324a; --done:#0891b2; --done-soft:#e2f5fa; --done-glow:rgba(8,145,178,0);
+  --red:#d8324a; --rank-good:#0d9668; --rank-mid:#c2740c;
+  --done:#0891b2; --done-soft:#e2f5fa; --done-glow:rgba(8,145,178,0);
   --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.05);
   --glow:rgba(8,145,178,0); --glow-strong:rgba(8,145,178,0);
 }
@@ -57,7 +60,8 @@ html[data-theme="dark"]{
   --line:rgba(56,214,255,.16); --line2:rgba(56,214,255,.07);
   --green:#2dd6ff; --green-soft:rgba(45,214,255,.12); --blue:#2dd6ff; --blue-soft:rgba(45,214,255,.12);
   --orange:#2dd6ff; --orange-soft:rgba(45,214,255,.12); --purple:#2dd6ff; --purple-soft:rgba(45,214,255,.12);
-  --red:#ff4d6a; --done:#2dd6ff; --done-soft:rgba(45,214,255,.12); --done-glow:rgba(45,214,255,.55);
+  --red:#ff4d6a; --rank-good:#33f2bd; --rank-mid:#ffb454;
+  --done:#2dd6ff; --done-soft:rgba(45,214,255,.12); --done-glow:rgba(45,214,255,.55);
   --shadow:none;
   --glow:rgba(45,214,255,.35); --glow-strong:rgba(45,214,255,.55);
 }
@@ -1316,7 +1320,7 @@ function viewMes(){
   rank.sort((a,b)=>b.pct-a.pct);
   const linha = x => '<div style="display:flex;align-items:center;gap:10px;padding:7px 0">'+
       '<div style="flex:1;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(x.t)+'</div>'+
-      '<div class="bar" style="width:84px;flex:none"><i style="width:'+(x.pct*100)+'%;background:'+(x.pct>=0.7?'var(--green)':x.pct>=0.4?'var(--orange)':'var(--red)')+'"></i></div>'+
+      '<div class="bar" style="width:84px;flex:none"><i style="width:'+(x.pct*100)+'%;background:'+(x.pct>=0.7?'var(--rank-good)':x.pct>=0.4?'var(--rank-mid)':'var(--red)')+'"></i></div>'+
       '<div style="width:36px;text-align:right;font-size:12.5px;font-weight:700;color:var(--muted)">'+Math.round(x.pct*100)+'%</div></div>';
   h+='<div class="card"><h2>Mais consistentes</h2>'+rank.slice(0,5).map(linha).join('')+
     '<div class="hr"></div><h2>Precisam de atenção</h2>'+rank.slice(-5).reverse().map(linha).join('')+
